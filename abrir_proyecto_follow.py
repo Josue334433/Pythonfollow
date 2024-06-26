@@ -160,7 +160,7 @@ def cerrar_proyectos():
         messagebox.showerror("Error", f"Error al cerrar los proyectos: {e}")
 
 root = tk.Tk()
-root.title("Iniciar Proyecto Inventario")
+root.title("Iniciar Proyecto")
 root.geometry("500x300")
 
 # Centrar la ventana principal en la pantalla
