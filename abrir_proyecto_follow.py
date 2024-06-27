@@ -11,12 +11,12 @@ import socket
 xampp_path = r"C:\xampp\xampp_start.exe"
 xampp_stop_path = r'C:\xampp\xampp_stop.exe'
 # Rutas a los proyectos de Laravel
-laravel_project_path = r"C:\xampp\htdocs\ApiEstadia"
-laravel_project_path_2 = r"C:\xampp\htdocs\ProyectoEstadia"
-# Ruta al icono
+laravel_project_path = r"C:\xampp\htdocs\Clientes_Ideb"
+laravel_project_path_2 = r"C:\xampp\htdocs\IdebApp"
+# Ruta al icono   
 icon_path = r'C:\xampp\htdocs\fav.ico'
 # Ruta al archivo de IP
-ip_update_script = r"C:\xampp\htdocs\ProyectoEstadia\config\ip.py"
+ip_update_script = r"C:\xampp\htdocs\IdebApp\config\ip.py"
 
 # Flag to check if the project is already running
 project_running = False
