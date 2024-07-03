@@ -10,13 +10,10 @@ import socket
 # Ruta a XAMPP
 xampp_path = r"C:\xampp\xampp_start.exe"
 xampp_stop_path = r'C:\xampp\xampp_stop.exe'
-# Rutas a los proyectos de Laravel
-laravel_project_path = r"C:\xampp\htdocs\Clientes_Ideb"
+# Ruta al proyecto de Laravel
 laravel_project_path_2 = r"C:\xampp\htdocs\IdebApp"
 # Ruta al icono   
 icon_path = r'C:\xampp\htdocs\fav.ico'
-# Ruta al archivo de IP
-ip_update_script = r"C:\xampp\htdocs\IdebApp\config\ip.py"
 
 # Flag to check if the project is already running
 project_running = False
@@ -33,22 +30,6 @@ def get_local_ip():
     finally:
         s.close()
     return ip
-
-def update_env_file(ip):
-    env_file = os.path.join(laravel_project_path_2, '.env')
-    try:
-        with open(env_file, 'r') as file:
-            lines = file.readlines()
-        
-        with open(env_file, 'w') as file:
-            for line in lines:
-                if line.startswith('BACKEND_API'):
-                    file.write(f'BACKEND_API="http://{ip}:8000"\n')
-                else:
-                    file.write(line)
-        print(f"Archivo .env actualizado con la IP: {ip}")
-    except Exception as e:
-        print(f"Error al actualizar el archivo .env: {e}")
 
 def abrir_xampp():
     try:
@@ -85,21 +66,18 @@ def iniciar_proyecto():
     y = root.winfo_y()
     waiting_window.geometry(f"+{x + 100}+{y + 100}")
 
-    def start_projects():
+    def start_project():
         global project_running
         ip = get_local_ip()
-        update_env_file(ip)
         abrir_xampp()
         time.sleep(2)  # Reducido el tiempo de espera
-        abrir_laravel_proyecto(laravel_project_path, 8000, ip)
-        time.sleep(1)  # Reducido el tiempo de espera
         abrir_laravel_proyecto(laravel_project_path_2, 8001, ip)
         project_running = True
         waiting_window.destroy()
         messagebox.showinfo("Éxito", "Proyecto iniciado correctamente.")
         webbrowser.open(f"http://{ip}:8001")
 
-    thread = Thread(target=start_projects)
+    thread = Thread(target=start_project)
     thread.start()
 
     # Centrar la ventana de mensaje con la pantalla principal
