@@ -11,7 +11,7 @@ import socket
 xampp_path = r"C:\xampp\xampp_start.exe"
 xampp_stop_path = r'C:\xampp\xampp_stop.exe'
 # Ruta al proyecto de Laravel
-laravel_project_path_2 = r"C:\xampp\htdocs\ProyectoEstadia"
+laravel_project_path_2 = r"C:\xampp\htdocs\IdebApp"
 # Ruta al icono   
 icon_path = r'C:\xampp\htdocs\fav.ico'
 
