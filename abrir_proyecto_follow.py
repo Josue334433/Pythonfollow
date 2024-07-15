@@ -11,7 +11,7 @@ import socket
 xampp_path = r"C:\xampp\xampp_start.exe"
 xampp_stop_path = r'C:\xampp\xampp_stop.exe'
 # Ruta al proyecto de Laravel
-laravel_project_path_2 = r"C:\xampp\htdocs\IdebApp"
+laravel_project_path_2 = r"C:\xampp\htdocs\ProyectoEstadia"
 # Ruta al icono   
 icon_path = r'C:\xampp\htdocs\fav.ico'
 
@@ -48,6 +48,17 @@ def abrir_laravel_proyecto(path, puerto, ip):
         print(f"Error al iniciar el proyecto en {path}: {e}")
         messagebox.showerror("Error", f"Error al iniciar el proyecto en {path}: {e}")
 
+def verificar_servidor(ip, puerto):
+    time.sleep(5)  # Esperar 5 segundos para darle tiempo al servidor a iniciarse
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(1)
+    try:
+        sock.connect((ip, puerto))
+        sock.close()
+        return True
+    except Exception:
+        return False
+
 def iniciar_proyecto():
     global project_running
     if project_running:
@@ -72,10 +83,15 @@ def iniciar_proyecto():
         abrir_xampp()
         time.sleep(2)  # Reducido el tiempo de espera
         abrir_laravel_proyecto(laravel_project_path_2, 8001, ip)
-        project_running = True
-        waiting_window.destroy()
-        messagebox.showinfo("Éxito", "Proyecto iniciado correctamente.")
-        webbrowser.open(f"http://{ip}:8001")
+        
+        if verificar_servidor(ip, 8001):
+            project_running = True
+            waiting_window.destroy()
+            messagebox.showinfo("Éxito", "Proyecto iniciado correctamente.")
+            webbrowser.open(f"http://{ip}:8001")
+        else:
+            waiting_window.destroy()
+            messagebox.showerror("Error", "El proyecto no se pudo iniciar correctamente.")
 
     thread = Thread(target=start_project)
     thread.start()
