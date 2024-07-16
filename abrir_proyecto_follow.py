@@ -6,6 +6,7 @@ from tkinter import messagebox, Toplevel, Label
 from threading import Thread
 import time
 import socket
+import shutil
 
 # Ruta a XAMPP
 xampp_path = r"C:\xampp\xampp_start.exe"
@@ -49,15 +50,25 @@ def abrir_laravel_proyecto(path, puerto, ip):
         messagebox.showerror("Error", f"Error al iniciar el proyecto en {path}: {e}")
 
 def verificar_servidor(ip, puerto):
-    time.sleep(5)  # Esperar 5 segundos para darle tiempo al servidor a iniciarse
+    time.sleep(10)  # Aumentar el tiempo de espera para darle más tiempo al servidor a iniciarse
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(1)
+    sock.settimeout(3)  # Aumentar el tiempo de espera para la conexión
     try:
         sock.connect((ip, puerto))
         sock.close()
         return True
     except Exception:
         return False
+
+def limpiar_directorio_temp():
+    temp_dir = os.path.join(os.getenv('TEMP'), "MEI*")
+    try:
+        for temp_subdir in glob.glob(temp_dir):
+            if os.path.isdir(temp_subdir):
+                shutil.rmtree(temp_subdir, ignore_errors=True)
+                print(f"Directorio temporal eliminado: {temp_subdir}")
+    except Exception as e:
+        print(f"Error al limpiar directorios temporales: {e}")
 
 def iniciar_proyecto():
     global project_running
@@ -81,7 +92,7 @@ def iniciar_proyecto():
         global project_running
         ip = get_local_ip()
         abrir_xampp()
-        time.sleep(2)  # Reducido el tiempo de espera
+        time.sleep(10)  # Aumentar el tiempo de espera para XAMPP
         abrir_laravel_proyecto(laravel_project_path_2, 8001, ip)
         
         if verificar_servidor(ip, 8001):
@@ -148,6 +159,7 @@ def cerrar_proyectos():
         
         project_running = False
         messagebox.showinfo("Éxito", "Proyecto y XAMPP cerrados correctamente.")
+        limpiar_directorio_temp()  # Limpiar el directorio temporal después de cerrar los procesos
         root.quit()  # Cierra la ventana principal y termina el programa
     except Exception as e:
         print(f"Error al cerrar los proyectos: {e}")
