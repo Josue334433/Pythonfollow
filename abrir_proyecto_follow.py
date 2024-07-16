@@ -7,6 +7,7 @@ from threading import Thread
 import time
 import shutil
 import glob
+import socket
 
 # Ruta a XAMPP
 xampp_path = r"C:\xampp\xampp_start.exe"
@@ -35,6 +36,25 @@ def abrir_laravel_proyecto(path):
     except Exception as e:
         print(f"Error al iniciar el proyecto en {path}: {e}")
         messagebox.showerror("Error", f"Error al iniciar el proyecto en {path}: {e}")
+
+def verificar_servidor(ip, puerto):
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.settimeout(3)
+    try:
+        sock.connect((ip, puerto))
+        sock.close()
+        return True
+    except socket.error:
+        return False
+
+def esperar_servidor(ip, puerto, max_intentos=20):
+    intentos = 0
+    while intentos < max_intentos:
+        if verificar_servidor(ip, puerto):
+            return True
+        intentos += 1
+        time.sleep(1)
+    return False
 
 def limpiar_directorio_temp():
     temp_dir = os.path.join(os.getenv('TEMP'), "MEI*")
@@ -67,13 +87,17 @@ def iniciar_proyecto():
     def start_project():
         global project_running
         abrir_xampp()
-        time.sleep(8)  # Reducir el tiempo de espera para XAMPP
+        time.sleep(8)  # Esperar para XAMPP
         abrir_laravel_proyecto(laravel_project_path_2)
         
-        project_running = True
-        waiting_window.destroy()
-        messagebox.showinfo("Éxito", "Proyecto iniciado correctamente.")
-        webbrowser.open("http://127.0.0.1:8000")
+        if esperar_servidor("127.0.0.1", 8000):
+            project_running = True
+            waiting_window.destroy()
+            messagebox.showinfo("Éxito", "Proyecto iniciado correctamente.")
+            webbrowser.open("http://127.0.0.1:8000")
+        else:
+            waiting_window.destroy()
+            messagebox.showerror("Error", "El proyecto no se pudo iniciar correctamente.")
 
     thread = Thread(target=start_project)
     thread.start()
@@ -129,8 +153,11 @@ def cerrar_proyectos():
         thread_php.join()
         
         project_running = False
+        try:
+            limpiar_directorio_temp()  # Limpiar el directorio temporal después de cerrar los procesos
+        except Exception as e:
+            print(f"Error al limpiar directorios temporales: {e}")
         messagebox.showinfo("Éxito", "Proyecto y XAMPP cerrados correctamente.")
-        limpiar_directorio_temp()  # Limpiar el directorio temporal después de cerrar los procesos
         root.quit()  # Cierra la ventana principal y termina el programa
     except Exception as e:
         print(f"Error al cerrar los proyectos: {e}")
