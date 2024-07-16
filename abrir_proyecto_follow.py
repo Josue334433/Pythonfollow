@@ -5,8 +5,8 @@ import tkinter as tk
 from tkinter import messagebox, Toplevel, Label
 from threading import Thread
 import time
-import socket
 import shutil
+import glob
 
 # Ruta a XAMPP
 xampp_path = r"C:\xampp\xampp_start.exe"
@@ -19,19 +19,6 @@ icon_path = r'C:\xampp\htdocs\fav.ico'
 # Flag to check if the project is already running
 project_running = False
 
-def get_local_ip():
-    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    s.settimeout(0)
-    try:
-        # No se envía nada, se conecta a una IP pública para obtener la IP local
-        s.connect(('10.254.254.254', 1))
-        ip = s.getsockname()[0]
-    except Exception:
-        ip = '127.0.0.1'  # Utiliza la IP local por defecto cuando no hay conexión a Internet
-    finally:
-        s.close()
-    return ip
-
 def abrir_xampp():
     try:
         subprocess.Popen(xampp_path, shell=True)
@@ -40,25 +27,14 @@ def abrir_xampp():
         print(f"Error al iniciar XAMPP: {e}")
         messagebox.showerror("Error", f"Error al iniciar XAMPP: {e}")
 
-def abrir_laravel_proyecto(path, puerto, ip):
+def abrir_laravel_proyecto(path):
     try:
         os.chdir(path)
-        subprocess.Popen(["cmd", "/K", f"php artisan serve --host={ip} --port={puerto}"], shell=True)
-        print(f"Proyecto Laravel iniciado en {ip}:{puerto}.")
+        subprocess.Popen(["cmd", "/K", "php artisan serve"], shell=True)
+        print("Proyecto Laravel iniciado en 127.0.0.1:8000.")
     except Exception as e:
         print(f"Error al iniciar el proyecto en {path}: {e}")
         messagebox.showerror("Error", f"Error al iniciar el proyecto en {path}: {e}")
-
-def verificar_servidor(ip, puerto):
-    time.sleep(10)  # Aumentar el tiempo de espera para darle más tiempo al servidor a iniciarse
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.settimeout(3)  # Aumentar el tiempo de espera para la conexión
-    try:
-        sock.connect((ip, puerto))
-        sock.close()
-        return True
-    except Exception:
-        return False
 
 def limpiar_directorio_temp():
     temp_dir = os.path.join(os.getenv('TEMP'), "MEI*")
@@ -90,19 +66,14 @@ def iniciar_proyecto():
 
     def start_project():
         global project_running
-        ip = get_local_ip()
         abrir_xampp()
-        time.sleep(10)  # Aumentar el tiempo de espera para XAMPP
-        abrir_laravel_proyecto(laravel_project_path_2, 8001, ip)
+        time.sleep(8)  # Reducir el tiempo de espera para XAMPP
+        abrir_laravel_proyecto(laravel_project_path_2)
         
-        if verificar_servidor(ip, 8001):
-            project_running = True
-            waiting_window.destroy()
-            messagebox.showinfo("Éxito", "Proyecto iniciado correctamente.")
-            webbrowser.open(f"http://{ip}:8001")
-        else:
-            waiting_window.destroy()
-            messagebox.showerror("Error", "El proyecto no se pudo iniciar correctamente.")
+        project_running = True
+        waiting_window.destroy()
+        messagebox.showinfo("Éxito", "Proyecto iniciado correctamente.")
+        webbrowser.open("http://127.0.0.1:8000")
 
     thread = Thread(target=start_project)
     thread.start()
